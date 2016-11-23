@@ -1,14 +1,20 @@
 #!/usr/bin/ruby
 
 class Justify
-  attr_accessor :words, :width
+  attr_accessor :words, :width, :input
 
-  def initialize(words, width)
-    @words = words
-    @width = width
+  def initialize(input, width)
+    @words = input.split(' ')
+    @width = (width < 0 ? 0 : width)
+    @input = input
   end
 
   def format_text
+    if width >= input.length || width == 0 
+      puts input
+      return
+    end
+
     i = 0
     last_word = ''
     temp = ''
@@ -41,10 +47,16 @@ class Justify
   def add_extra_spaces(temp)
     j = 0
     words_in_sentence = temp.split(' ')
-    while words_in_sentence.join(' ').length < width do 
-      words_in_sentence[j] = words_in_sentence[j].to_s + '  '
+    word_count = words_in_sentence.count
+
+    return temp if word_count == 1
+
+    while temp.length < width do 
+      j = 0 if j == word_count
+
+      words_in_sentence[j] = words_in_sentence[j].to_s.ljust(words_in_sentence[j].to_s.length + 1) 
+      temp = words_in_sentence.join(' ').strip
       j += 1
-      temp = words_in_sentence.join(' ')
     end
     temp
   end
@@ -55,6 +67,6 @@ width = ARGV[1].to_i
 File.foreach(ARGV[0]) do |line|
   input = line
 end
-words = input.gsub(/[\\\"]/,"").gsub("\n", '').split(' ')
+input.gsub!(/[\\\"]/,"").gsub!("\n", '')
 
-Justify.new(words, width).format_text
+Justify.new(input, width).format_text
